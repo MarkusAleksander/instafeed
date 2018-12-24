@@ -1,11 +1,11 @@
 <template>
   <div class="home">
     <image-input v-on:update="handleUpdate"></image-input>
-    <ul class="images-list">
-      <li class="image-item" v-for="image in images" v-if="image.loaded" :key="image.id">
+    <transition-group name="fade" tag="ul" class="images-list">
+      <li class="image-item" v-for="image in images" v-bind:key="image.key">
         <insta-image v-bind:image="image"></insta-image>
       </li>
-    </ul>
+    </transition-group>
   </div>
 </template>
 
@@ -44,19 +44,18 @@ export default {
     },
     loadImages(res) {
       let d = res.data.graphql.hashtag.edge_hashtag_to_media.edges;
-      // this.images = [];
-      for (let i = 0; i < this.max_images; i++) {
+      let t_images = d.length >= this.max_images ? this.max_images : d.length;
+      for (let i = 0; i < t_images; i++) {
         let img = new Image();
         img.onload = () => {
+          this.images.push({
+            key: i,
+            thumb: img,
+            image: d[i].node.display_url
+          });
           return true;
         };
         img.src = d[i].node.thumbnail_src;
-        this.images.push({
-          key: i,
-          thumb: img,
-          image: d[i].node.display_url,
-          loaded: img.onload
-        });
       }
     },
     getImages() {
@@ -66,8 +65,19 @@ export default {
           this.loadImages(res);
         })
         .catch(err => {
-          console.log(err);
+          this.handleNoImages(err);
         });
+    },
+    handleNoImages(err) {
+      // eslint-disable-next-line
+      console.log(`No images found for that...${err}`);
+    }
+  },
+  computed: {
+    loaded_images: function() {
+      return this.images.filter(i => {
+        return i.loaded;
+      });
     }
   }
 };

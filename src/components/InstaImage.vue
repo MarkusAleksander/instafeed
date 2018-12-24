@@ -1,11 +1,9 @@
 <template>
-  <transition name="fade">
-    <div class="instafeed-image">
-      <a :href="image.image">
-        <img :src="image.thumb.src">
-      </a>
-    </div>
-  </transition>
+  <div class="instafeed-image">
+    <a :href="image.image">
+      <img :src="image.thumb.src">
+    </a>
+  </div>
 </template>
 
 <script>
