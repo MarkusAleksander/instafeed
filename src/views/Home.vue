@@ -1,9 +1,9 @@
 <template>
   <div class="home">
-    <image-input v-on:submit="handleSubmit"></image-input>
+    <image-input v-on:update="handleUpdate"></image-input>
     <ul class="images-list">
-      <li class="image-item" v-for="image in images" :key="image.id">
-        <insta-image v-bind:thumb="image.thumb" v-bind:image="image.image"></insta-image>
+      <li class="image-item" v-for="image in images" v-if="image.loaded" :key="image.id">
+        <insta-image v-bind:image="image"></insta-image>
       </li>
     </ul>
   </div>
@@ -26,29 +26,47 @@ export default {
     return {
       search_tag: "",
       images: [],
-      max_images: 12
+      max_images: 0
     };
   },
   methods: {
-    handleSubmit(d) {
+    handleUpdate(d) {
       this.search_tag = d.search_tag;
       this.max_images = d.num_images;
+      this.removeItems();
       this.getImages();
     },
+    removeItems() {
+      while (this.images.length > 0) {
+        // Loop and splice out images
+        this.images.splice(0, 1);
+      }
+    },
+    loadImages(res) {
+      let d = res.data.graphql.hashtag.edge_hashtag_to_media.edges;
+      // this.images = [];
+      for (let i = 0; i < this.max_images; i++) {
+        let img = new Image();
+        img.onload = () => {
+          return true;
+        };
+        img.src = d[i].node.thumbnail_src;
+        this.images.push({
+          key: i,
+          thumb: img,
+          image: d[i].node.display_url,
+          loaded: img.onload
+        });
+      }
+    },
     getImages() {
-      console.log("getting images...");
       axios
         .get(`https://www.instagram.com/explore/tags/${this.search_tag}/?__a=1`)
         .then(res => {
-          this.images = [];
-          let d = res.data.graphql.hashtag.edge_hashtag_to_media.edges;
-          for (let i = 0; i < this.max_images; i++) {
-            this.images.push({
-              key: i,
-              thumb: d[i].node.thumbnail_src,
-              image: d[i].node.display_url
-            });
-          }
+          this.loadImages(res);
+        })
+        .catch(err => {
+          console.log(err);
         });
     }
   }
@@ -67,5 +85,14 @@ export default {
     flex-basis: 25%;
     padding: 10px;
   }
+} // Transitions
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 1s;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

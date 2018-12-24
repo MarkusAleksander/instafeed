@@ -1,5 +1,5 @@
 <template>
-  <form v-on:submit="handleSubmit">
+  <form @submit.enter.prevent="emitData">
     <div class="col">
       <label>Enter tag:</label>
       <input type="text" v-model="search_tag">
@@ -18,22 +18,19 @@ export default {
   data: function() {
     return {
       search_tag: "christmas",
-      num_images: 12
+      num_images: 4
     };
   },
   mounted: function() {
     this.emitData();
   },
   methods: {
-    emitData: function() {
-      this.$emit("submit", {
+    emitData: function(e) {
+      console.log("emitting data...");
+      this.$emit("update", {
         search_tag: this.search_tag,
         num_images: this.num_images
       });
-    },
-    handleSubmit: function(e) {
-      e.preventDefault();
-      this.emitData();
     }
   }
 };

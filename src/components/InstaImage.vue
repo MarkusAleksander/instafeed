@@ -1,17 +1,20 @@
 <template>
-  <div class="instafeed-image">
-    <a :href="image">
-      <img :src="thumb">
-    </a>
-  </div>
+  <transition name="fade">
+    <div class="instafeed-image">
+      <a :href="image.image">
+        <img :src="image.thumb.src">
+      </a>
+    </div>
+  </transition>
 </template>
 
 <script>
 export default {
   name: "InstaImage",
-  props: ["thumb", "image"]
+  props: ["image"]
 };
 </script>
+
 <style lang="scss" scoped>
 .instafeed-image {
   width: 100%;
