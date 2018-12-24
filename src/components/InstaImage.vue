@@ -1,13 +1,15 @@
 <template>
   <div class="instafeed-image">
-    <img :src="image">
+    <a :href="image">
+      <img :src="thumb">
+    </a>
   </div>
 </template>
 
 <script>
 export default {
   name: "InstaImage",
-  props: ["image"]
+  props: ["thumb", "image"]
 };
 </script>
 <style lang="scss" scoped>
