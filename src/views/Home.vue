@@ -1,18 +1,30 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <p>Images:</p>
+    <ul>
+      <li v-for="image in images" :key="image.id">
+        <insta-image v-bind:image="image.image"></insta-image>
+      </li>
+    </ul>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import InstaImage from "@/components/InstaImage.vue";
 
 export default {
-  name: 'home',
+  name: "home",
   components: {
-    HelloWorld
+    InstaImage
+  },
+  data: function() {
+    return {
+      images: [
+        { key: 1, image: "image-1,jpg" },
+        { key: 2, image: "image-2.jpg" }
+      ]
+    };
   }
-}
+};
 </script>
