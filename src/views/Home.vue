@@ -5,7 +5,7 @@
     </div>
     <div class="col">
       <transition-group name="fade" tag="ul" class="images-list">
-        <li class="image-item" v-for="image in images" v-bind:key="image.key">
+        <li class="image-item" v-for="image in loaded_images" v-bind:key="image.key">
           <insta-image v-on:select="updateSelectedImage" v-bind:image="image"></insta-image>
         </li>
       </transition-group>
@@ -33,17 +33,21 @@ export default {
   },
   data: function() {
     return {
-      search_tag: "",
+      search_tags: [],
       images: [],
-      max_images: 0,
-      selectedImage: ""
+      selectedImage: "",
+      latest_search_tags: []
     };
   },
   methods: {
     handleUpdate(d) {
-      this.search_tag = d.search_tag;
-      this.max_images = d.num_images;
-      this.removeItems();
+      // Find difference between old and new array
+      this.latest_search_tags = d.search_tags.filter(i => {
+        return this.search_tags.indexOf(i) < 0;
+      });
+      this.latest_search_tags.forEach(e => {
+        this.search_tags.push(e);
+      });
       this.getImages();
     },
     removeItems() {
@@ -52,16 +56,19 @@ export default {
         this.images.splice(0, 1);
       }
     },
-    loadImages(res) {
+    loadImages(res, e) {
       let d = res.data.graphql.hashtag.edge_hashtag_to_media.edges;
-      let t_images = d.length >= this.max_images ? this.max_images : d.length;
+      // let t_images = d.length >= this.max_images ? this.max_images : d.length;
+      let t_images = d.length >= e.num_items ? e.num_items : d.length;
       for (let i = 0; i < t_images; i++) {
         let img = new Image();
         img.onload = () => {
           this.images.push({
-            key: i,
+            key: `${i}_${e.search_tag}`,
             thumb: img,
-            image: d[i].node.display_url
+            image: d[i].node.display_url,
+            search_tag: e.search_tag,
+            id: i
           });
           return true;
         };
@@ -70,14 +77,18 @@ export default {
       }
     },
     getImages() {
-      axios
-        .get(`https://www.instagram.com/explore/tags/${this.search_tag}/?__a=1`)
-        .then(res => {
-          this.loadImages(res);
-        })
-        .catch(err => {
-          this.handleNoImages(err);
-        });
+      this.latest_search_tags.forEach(e => {
+        axios
+          .get(`https://www.instagram.com/explore/tags/${e.search_tag}/?__a=1`)
+          .then(res => {
+            this.loadImages(res, e);
+          })
+          .catch(err => {
+            this.handleNoImages(err);
+          });
+      });
+      // Clear latest tags after usage
+      this.latest_search_tags = [];
     },
     handleNoImages(err) {
       // eslint-disable-next-line
@@ -89,9 +100,7 @@ export default {
   },
   computed: {
     loaded_images: function() {
-      return this.images.filter(i => {
-        return i.loaded;
-      });
+      return this.images.reverse();
     }
   }
 };
