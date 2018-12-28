@@ -1,15 +1,18 @@
 <template>
-  <div class="instafeed-image">
-    <a :href="image.image">
-      <img :src="image.thumb.src">
-    </a>
+  <div class="instafeed-image" v-on:click="updateSelectedImage">
+    <img :src="image.thumb.src">
   </div>
 </template>
 
 <script>
 export default {
   name: "InstaImage",
-  props: ["image"]
+  props: ["image"],
+  methods: {
+    updateSelectedImage: function() {
+      this.$emit("select", { url: this.image.image });
+    }
+  }
 };
 </script>
 

@@ -1,11 +1,18 @@
 <template>
   <div class="home">
-    <image-input v-on:update="handleUpdate"></image-input>
-    <transition-group name="fade" tag="ul" class="images-list">
-      <li class="image-item" v-for="image in images" v-bind:key="image.key">
-        <insta-image v-bind:image="image"></insta-image>
-      </li>
-    </transition-group>
+    <div class="header">
+      <image-input v-on:update="handleUpdate"></image-input>
+    </div>
+    <div class="col">
+      <transition-group name="fade" tag="ul" class="images-list">
+        <li class="image-item" v-for="image in images" v-bind:key="image.key">
+          <insta-image v-on:select="updateSelectedImage" v-bind:image="image"></insta-image>
+        </li>
+      </transition-group>
+    </div>
+    <div class="col">
+      <image-viewer v-if="selectedImage != ''" v-bind:image="selectedImage"></image-viewer>
+    </div>
   </div>
 </template>
 
@@ -13,6 +20,7 @@
 // @ is an alias to /src
 import InstaImage from "@/components/InstaImage.vue";
 import ImageInput from "@/components/ImageInput.vue";
+import ImageViewer from "@/components/ImageViewer.vue";
 
 import axios from "axios";
 
@@ -20,13 +28,15 @@ export default {
   name: "home",
   components: {
     InstaImage,
-    ImageInput
+    ImageInput,
+    ImageViewer
   },
   data: function() {
     return {
       search_tag: "",
       images: [],
-      max_images: 0
+      max_images: 0,
+      selectedImage: ""
     };
   },
   methods: {
@@ -55,6 +65,7 @@ export default {
           });
           return true;
         };
+        // Temporarily disabled to save data
         img.src = d[i].node.thumbnail_src;
       }
     },
@@ -71,6 +82,9 @@ export default {
     handleNoImages(err) {
       // eslint-disable-next-line
       console.log(`No images found for that...${err}`);
+    },
+    updateSelectedImage(i) {
+      this.selectedImage = i.url;
     }
   },
   computed: {
@@ -91,11 +105,28 @@ export default {
   flex-wrap: wrap;
   list-style-type: none;
   .image-item {
-    flex-grow: 1;
-    flex-basis: 25%;
-    padding: 10px;
+    flex-basis: 22.5%;
+    margin-bottom: 1rem;
   }
-} // Transitions
+}
+
+.home {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  .header {
+    flex-basis: 100%;
+    flex-grow: 1;
+  }
+
+  .col {
+    flex-basis: 50%;
+    padding: 1.5rem;
+  }
+}
+
+// Transitions
 
 .fade-enter-active,
 .fade-leave-active {
