@@ -8,6 +8,7 @@
           v-for="tag in search_tags"
           v-on:click="removeTag"
           :key="tag.search_tag"
+          :data-tag="tag.search_tag"
         >{{tag.search_tag}} : {{tag.num_items}}</li>
       </ul>
     </div>
@@ -48,7 +49,20 @@ export default {
       this.search_tag = "";
       this.num_images = 0;
     },
-    removeTag: function(e) {},
+    removeTag: function(e) {
+      let t = e.target.getAttribute("data-tag");
+      if (t) {
+        this.search_tags.splice(
+          this.search_tags.indexOf(
+            this.search_tags.find(e => {
+              e.search_tag == t;
+            })
+          ),
+          1
+        );
+        this.$emit("remove", { search_tag: t });
+      }
+    },
     updateForm: function() {
       if (this.search_tag.length && this.num_images) {
         this.addNewTag();

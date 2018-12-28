@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <div class="header">
-      <image-input v-on:update="handleUpdate"></image-input>
+      <image-input v-on:update="handleUpdate" v-on:remove="handleRemove"></image-input>
     </div>
     <div class="col">
       <transition-group name="fade" tag="ul" class="images-list">
@@ -49,6 +49,32 @@ export default {
         this.search_tags.push(e);
       });
       this.getImages();
+    },
+    handleRemove(d) {
+      // Find number of items to remvoe
+      let num_items = this.search_tags.find(e => {
+        return e.search_tag == d.search_tag;
+      }).num_items;
+      if (num_items) {
+        for (let i = 0; i < num_items; i++) {
+          this.images.splice(
+            this.images.indexOf(
+              this.images.find(e => {
+                e.id == i && e.search_tag == d.search_tag;
+              })
+            ),
+            1
+          );
+        }
+        this.search_tags.splice(
+          this.search_tags.indexOf(
+            this.search_tags.find(e => {
+              return e.search_tag == d.search_tag;
+            })
+          ),
+          1
+        );
+      }
     },
     removeItems() {
       while (this.images.length > 0) {
@@ -100,7 +126,7 @@ export default {
   },
   computed: {
     loaded_images: function() {
-      return this.images.reverse();
+      return this.images.slice().reverse();
     }
   }
 };

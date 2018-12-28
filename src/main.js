@@ -3,7 +3,7 @@ import App from './App.vue'
 import router from './router'
 import './registerServiceWorker'
 
-import config from './config.js'
+// import config from './config.js'
 
 Vue.config.productionTip = false
 
