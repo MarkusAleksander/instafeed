@@ -6,11 +6,12 @@
     <div class="col">
       <transition-group name="fade" tag="ul" class="images-list">
         <li class="image-item" v-for="image in loaded_images" v-bind:key="image.key">
-          <insta-image v-on:select="updateSelectedImage" v-bind:image="image"></insta-image>
+          <insta-image v-on:select="updateSelectedItem" v-bind:image="image"></insta-image>
         </li>
       </transition-group>
     </div>
     <div class="col">
+      <video-viewer v-if="selectedVideo != ''" v-bind:video="selectedVideo"></video-viewer>
       <image-viewer v-if="selectedImage != ''" v-bind:image="selectedImage"></image-viewer>
     </div>
   </div>
@@ -20,7 +21,9 @@
 // @ is an alias to /src
 import InstaImage from "@/components/InstaImage.vue";
 import ImageInput from "@/components/ImageInput.vue";
+
 import ImageViewer from "@/components/ImageViewer.vue";
+import VideoViewer from "@/components/VideoViewer.vue";
 
 import axios from "axios";
 
@@ -29,13 +32,15 @@ export default {
   components: {
     InstaImage,
     ImageInput,
-    ImageViewer
+    ImageViewer,
+    VideoViewer
   },
   data: function() {
     return {
       search_tags: [],
       images: [],
       selectedImage: "",
+      selectedVideo: "",
       latest_search_tags: []
     };
   },
@@ -93,7 +98,9 @@ export default {
               thumb: img,
               image: arr[i].node.display_url,
               search_tag: e.search_tag,
-              id: i
+              id: i,
+              shortcode: arr[i].node.shortcode,
+              type: arr[i].node.__typename
             });
             return true;
           };
@@ -135,12 +142,33 @@ export default {
       // Clear latest tags after usage
       this.latest_search_tags = [];
     },
+    getVideo(e) {
+      axios
+        .get(`https://www.instagram.com/p/${e.shortcode}/?__a=1`)
+        .then(res => {
+          this.loadVideo(res);
+        })
+        .catch(err => {
+          this.handleNoImages(err);
+        });
+    },
+    loadVideo(res) {
+      this.selectedVideo = res.data.graphql.shortcode_media.video_url;
+    },
     handleNoImages(err) {
       // eslint-disable-next-line
       console.log(`No images found for that...${err}`);
     },
-    updateSelectedImage(i) {
-      this.selectedImage = i.url;
+    updateSelectedItem(i) {
+      this.selectedImage = "";
+      this.selectedVideo = "";
+      if (i.type == "GraphImage") {
+        this.selectedImage = i.url;
+      } else if (i.type == "GraphVideo") {
+        this.getVideo(i);
+      } else {
+        this.selectedImage = i.url;
+      }
     }
   },
   computed: {

@@ -25,7 +25,7 @@
 </template>
 
 <script>
-const default_num_images = 4;
+const default_num_images = 8;
 
 export default {
   name: "ImageInput",

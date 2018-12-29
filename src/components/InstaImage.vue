@@ -10,7 +10,11 @@ export default {
   props: ["image"],
   methods: {
     updateSelectedImage: function() {
-      this.$emit("select", { url: this.image.image });
+      this.$emit("select", {
+        url: this.image.image,
+        type: this.image.type,
+        shortcode: this.image.shortcode
+      });
     }
   }
 };
