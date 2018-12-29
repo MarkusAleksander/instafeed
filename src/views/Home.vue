@@ -83,23 +83,42 @@ export default {
       }
     },
     loadImages(res, e) {
-      let d = res.data.graphql.hashtag.edge_hashtag_to_media.edges;
-      // let t_images = d.length >= this.max_images ? this.max_images : d.length;
-      let t_images = d.length >= e.num_items ? e.num_items : d.length;
-      for (let i = 0; i < t_images; i++) {
-        let img = new Image();
-        img.onload = () => {
-          this.images.push({
-            key: `${i}_${e.search_tag}`,
-            thumb: img,
-            image: d[i].node.display_url,
-            search_tag: e.search_tag,
-            id: i
-          });
-          return true;
-        };
-        // Temporarily disabled to save data
-        img.src = d[i].node.thumbnail_src;
+      // Image post loader
+      function loadPosts(arr, num_posts, $t) {
+        for (let i = 0; i < num_posts; i++) {
+          let img = new Image();
+          img.onload = () => {
+            $t.images.push({
+              key: `${i}_${e.search_tag}`,
+              thumb: img,
+              image: arr[i].node.display_url,
+              search_tag: e.search_tag,
+              id: i
+            });
+            return true;
+          };
+          // Temporarily disabled to save data
+          img.src = arr[i].node.thumbnail_src;
+        }
+      }
+
+      if (e.top_posts) {
+        let d = res.data.graphql.hashtag.edge_hashtag_to_top_posts.edges;
+        let num_posts = d.length >= e.num_items ? e.num_items : d.length;
+        loadPosts(d, num_posts, this);
+        if (num_posts < e.num_items) {
+          d = res.data.graphql.hashtag.edge_hashtag_to_media.edges;
+          num_posts =
+            d.length >= e.num_items - num_posts
+              ? e.num_items - num_posts
+              : d.length;
+          loadPosts(d, num_posts, this);
+          // num_posts = d.length >= e.num_items ? e.num_items : d.length;
+        }
+      } else {
+        let d = res.data.graphql.hashtag.edge_hashtag_to_media.edges;
+        let num_posts = d.length >= e.num_items ? e.num_items : d.length;
+        loadPosts(d, num_posts, this);
       }
     },
     getImages() {

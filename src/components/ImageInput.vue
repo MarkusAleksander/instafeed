@@ -9,12 +9,14 @@
           v-on:click="removeTag"
           :key="tag.search_tag"
           :data-tag="tag.search_tag"
-        >{{tag.search_tag}} : {{tag.num_items}}</li>
+        >{{tag.search_tag}} : {{tag.num_items}} : {{tag.top_posts}}</li>
       </ul>
     </div>
     <div class="col">
       <label>Number of images to display:</label>
-      <input type="number" min="1" max="25" step="1" v-model.number="num_images">
+      <input type="number" min="1" max="12" step="1" v-model.number="num_images">
+      <label>Search Top Posts First</label>
+      <input type="checkbox" v-model="top_posts">
     </div>
     <div class="col">
       <button v-on:click="updateForm">Update</button>
@@ -23,18 +25,22 @@
 </template>
 
 <script>
+const default_num_images = 4;
+
 export default {
   name: "ImageInput",
   data: function() {
     return {
       search_tags: [
         {
-          num_items: 4,
-          search_tag: "christmas"
+          num_items: default_num_images,
+          search_tag: "christmas",
+          top_posts: false
         }
       ],
       search_tag: "",
-      num_images: 0
+      num_images: default_num_images,
+      top_posts: false
     };
   },
   mounted: function() {
@@ -44,10 +50,12 @@ export default {
     addNewTag: function() {
       this.search_tags.push({
         num_items: this.num_images,
-        search_tag: this.search_tag
+        search_tag: this.search_tag,
+        top_posts: this.top_posts
       });
       this.search_tag = "";
       this.num_images = 0;
+      this.top_posts = false;
     },
     removeTag: function(e) {
       let t = e.target.getAttribute("data-tag");
