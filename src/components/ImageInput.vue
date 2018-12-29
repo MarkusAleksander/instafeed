@@ -14,7 +14,7 @@
     </div>
     <div class="col">
       <label>Number of images to display:</label>
-      <input type="number" min="1" max="12" step="1" v-model.number="num_images">
+      <input type="number" min="1" :max="max_images" step="1" v-model.number="num_images">
       <label>Search Top Posts First</label>
       <input type="checkbox" v-model="top_posts">
     </div>
@@ -40,7 +40,8 @@ export default {
       ],
       search_tag: "",
       num_images: default_num_images,
-      top_posts: false
+      top_posts: false,
+      max_images: 20
     };
   },
   mounted: function() {
@@ -72,7 +73,7 @@ export default {
       }
     },
     updateForm: function() {
-      if (this.search_tag.length && this.num_images) {
+      if (this.search_tag.length && this.num_images <= this.max_images) {
         this.addNewTag();
         this.emitData();
       }

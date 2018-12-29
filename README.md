@@ -1,29 +1,7 @@
 # instafeed
 
-## Project setup
-```
-npm install
-```
+## Project abandoned due to Instagram Platform API planned deprecation
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+Basic project allowing users to search for a tag, and display x number of results using VueJS.
 
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Run your tests
-```
-npm run test
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+Minor updates applied out of just trying to make the project look nice.
